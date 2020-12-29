@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Timers;
-namespace ConsoleApp1_GetFile
+namespace PIWorks
 {
     public class myComparer : IComparer<KeyValuePair<string,int>>
     {
@@ -36,6 +36,37 @@ namespace ConsoleApp1_GetFile
             return 0;
         }
     }
+    
+    public class myComparer2 : IComparer<int>
+    {
+        public bool Equals(int x, int y)
+        {
+            if(x == y)
+                return true;
+            
+            return false;
+        }
+	
+        public int GetHashCode(Object obj)
+        {
+            return obj.GetHashCode();
+        }
+
+        public int Compare(int x, int y)
+        {
+            if (x < y)
+                return 1;
+            if (x > y)
+                return -1;
+            else
+            {
+                return 0;
+            }
+  //          if (keyComparison != 0) return keyComparison;
+            
+//            return 0;
+        }
+    }
     public class ReadingAFile
     {
         public int topla(int[] dimension,int level)
@@ -50,6 +81,12 @@ namespace ConsoleApp1_GetFile
             return sum;
         }
 
+        public static int myMathPower(int a)
+        {
+            int powerOf = 2;
+            while (powerOf < a) powerOf *= 2;
+            return powerOf;
+        }
         public static string getMyFileName()
         {
             Console.WriteLine("Please enter the path with the name of file");
@@ -62,11 +99,11 @@ namespace ConsoleApp1_GetFile
             {
                 myFile = new String("C:\\Users\\metet\\Downloads\\exhibitA-input\\exhibitA-input.csv");
             }
-            string myFileDirectory = myFile.Substring(0,myFile.LastIndexOf('\\'));
-            string myFiles = @myFileDirectory;
-            string zipFileDirectory = @myFileDirectory+"\\exhibitA-input.zip";
+            //string myFileDirectory = myFile.Substring(0,myFile.LastIndexOf('\\'));
+            //string myFiles = @myFileDirectory;
+            //string zipFileDirectory = @myFileDirectory+"\\exhibitA-input.zip";
 
-            System.IO.Compression.ZipFile.ExtractToDirectory(zipFileDirectory, myFiles);
+            //System.IO.Compression.ZipFile.ExtractToDirectory(zipFileDirectory, myFiles);
 
             return myFile;
         }
@@ -90,8 +127,8 @@ namespace ConsoleApp1_GetFile
                 return; 
             }
             lines = File.ReadAllLines(myFile);
-            int sayac = -1;
-            int limits = ((int)(Math.Sqrt (lines.Length) *10)<lines.Length)?(int) (Math.Sqrt (lines.Length) * 10):(int)(Math.Sqrt (lines.Length) );
+            int sayac = -1; 
+            int limits = (myMathPower((int)(Math.Sqrt (lines.Length) *10) ) <lines.Length)?(int) myMathPower((int)(Math.Sqrt (lines.Length) *10)):myMathPower((int)(Math.Sqrt (lines.Length) ));
             const int partyCountPlays = 4097;
             const int partyCountSongs = 1025;
             const int partyCountClients = 1025;
@@ -239,7 +276,6 @@ namespace ConsoleApp1_GetFile
 
                 average = (double) ((DateTime.Now - start).TotalSeconds / sayac);
                 lapSt = DateTime.Now;
-                //Console.WriteLine("Start Time "+ start + " Previous: " + previous + " Lap: " + (DateTime.Now-previous) + " FileHandle: " + average + " sayac: " + sayac);
                 lineTemp = lines[sayac];
                 tempString = lineTemp.Split(separator);
                 tempString2 = tempString[1].Split(separator2);
@@ -248,6 +284,21 @@ namespace ConsoleApp1_GetFile
                 clientId = tempString[2];
                 timeId = tempString[3];
                 datetimeId = timeId; 
+                
+                char separatorM = '/';
+                char separatorM2 = ':';
+                String[] tempDate = tempString[3].Split(separatorM);
+                int year;
+                int month;
+                int day;
+                int hour;
+                int minute;
+                int second;
+                String[] tempDateMine = tempDate[2].Split(separator2);
+                year = Int32.Parse(tempDateMine[0]);
+                month = Int32.Parse(tempDate[1]);
+                day = Int32.Parse(tempDate[0]);
+                
                 String temp;
                 DateTime tempDatetime;
                 double tempLap = (double) (DateTime.Now - lapSt).TotalSeconds;
@@ -259,24 +310,28 @@ namespace ConsoleApp1_GetFile
                 Hashtable a = new Hashtable();
 
                 String temp10 = clientId + "," + songId;
-                if (myStats[dynamicSideSongs].ContainsKey(temp10))
+                if (day == 10&&month==8&&year==2016)
                 {
-                    int counterMine = 0;
-                    foreach (KeyValuePair<string, int> kvp in myStats[dynamicSideSongs])
+                    if (myStats[dynamicSideSongs].ContainsKey(temp10))
                     {
-                        if (kvp.Key.Equals(temp10)) 
+                        int counterMine = 0;
+                        foreach (KeyValuePair<string, int> kvp in myStats[dynamicSideSongs])
                         {
-                            myStats[dynamicSideSongs][temp10]++;
-                            break;
-                        }
+                            if (kvp.Key.Equals(temp10))
+                            {
+                                myStats[dynamicSideSongs][temp10]++;
+                                break;
+                            }
 
-                        counterMine++;
+                            counterMine++;
+                        }
+                    }
+                    else
+                    {
+                        myStats[dynamicSideSongs].Add(temp10, 1);
                     }
                 }
-                else
-                {
-                    myStats[dynamicSideSongs].Add(temp10, 1);
-                }
+
                 start3 = DateTime.Now;
                 if(sayac%1000==0) {
                     Console.WriteLine("New Start Time " + start2 + ",End Time: " + DateTime.Now + ",LapSt: " +
@@ -358,15 +413,19 @@ namespace ConsoleApp1_GetFile
             Console.WriteLine("Start Time "+ start + " End Time: " + DateTime.Now + " LapFinalFinal: " + (DateTime.Now-start));
             Console.WriteLine("Please enter client no and song no");
             String readLines = Console.ReadLine();
-            String cli;
+            String cli ="";
             String song = "-1";
-            String searchOne;
-            if (readLines.Contains(' '))
+            String searchOne="";
+            if (readLines.Contains(' ')&& readLines.Length>0)
             {
                 cli = readLines.Substring(0, readLines.IndexOf(' '));
                 song = readLines.Substring(readLines.IndexOf(' ') + 1,
                     (readLines.Length - readLines.IndexOf(' ') - 1));
                 searchOne = cli + ',' + song;
+            }
+            else if (readLines.Length == 0)
+            {
+                searchOne = "";
             }
             else
             {
@@ -375,7 +434,100 @@ namespace ConsoleApp1_GetFile
             }
             
             KeyValuePair<string, int> searchedOne = new KeyValuePair<string, int>(searchOne, 1);
-            if (!cli.EndsWith(','))
+            HashSet<KeyValuePair<int, int>> distinctSongsAndsClients = new HashSet<KeyValuePair<int, int>>();
+            if (searchedOne.Key.Equals(""))
+            {
+                int userSongsCounter = 0;
+                int totalPlays = 0;
+                int totalClients = 0;
+                string tempClient = ",";
+                KeyValuePair<string, int> previous2 = new KeyValuePair<string, int>();
+                previous2 = keyValues[0];
+                foreach (KeyValuePair<string, int> kvp in keyValues)
+                {
+                    //userSongsCounter++;
+                    tempClient = kvp.Key.Substring(0, kvp.Key.IndexOf(','));
+                    if (!previous2.Key.Substring(0, previous2.Key.IndexOf(',')).Equals(tempClient))
+                    {
+                        totalClients++;
+                        previous2=kvp;
+                        KeyValuePair<int,int> tempSandC = new KeyValuePair<int, int>(userSongsCounter,1);
+                        //int i = 0;
+                        bool flagMine = true;
+                        foreach (var tempVariable in distinctSongsAndsClients)
+                        {
+                            if (tempVariable.Key.Equals(tempSandC.Key))
+                            {
+                                int tempValue = tempVariable.Value;
+                                tempValue++;
+                                distinctSongsAndsClients.Remove(tempVariable);
+                                KeyValuePair<int,int> temp2 = new KeyValuePair<int, int>(tempSandC.Key,tempValue);
+                                distinctSongsAndsClients.Add(temp2);
+                                flagMine = false;
+                                break;
+                            }
+                        }
+                        if (flagMine == true)
+                        {
+                            distinctSongsAndsClients.Add(tempSandC);
+                        }
+/*                        if (!distinctSongsAndsClients.Add(tempSandC))
+                        {
+                            int i = 0;
+                            bool flagMine = true;
+                            KeyValuePair<int,int> temp1 = new KeyValuePair<int, int>();
+                            do
+                            {
+                                temp1=distinctSongsAndsClients.ElementAt(i);
+                                if (temp1.Key.Equals(tempSandC.Key))
+                                {
+                                    int tempValue = temp1.Value;
+                                    tempValue++;
+                                    distinctSongsAndsClients.Remove(temp1);
+                                    KeyValuePair<int,int> temp2 = new KeyValuePair<int, int>(temp1.Key,tempValue);
+                                    distinctSongsAndsClients.Add(temp2);
+                                    flagMine = false;
+                                }
+                                i++;
+                            } while (i<distinctSongsAndsClients.Count&&flagMine == true);
+                        }*/
+                        userSongsCounter = 0;
+                    }
+                    userSongsCounter++;
+                 }              
+                 List<KeyValuePair<int,int> > myStatsSortedList= distinctSongsAndsClients.ToList();
+                 List<int> newStats = new List<int>();
+                 List<int> newStatsIndex = new List<int>();
+                 foreach(var myVariable in myStatsSortedList)
+                 {
+                     newStats.Add(myVariable.Key);
+                 }
+                 newStats.Sort(new myComparer2());// Sort();
+                 foreach (var myVariable in myStatsSortedList)
+                 {
+                     //newStats.Add(myVariable.Key);
+                     int i = 0;
+                     bool flag5 = true;
+                     do
+                     {
+                         if (myVariable.Key.Equals(newStats.ElementAt(i)))
+                         {
+                             newStatsIndex.Add(myVariable.Value); //Sort();
+                             flag5 = false;
+                         }
+
+                         i++;
+                     } while (flag5 == true);
+                 }
+                 //                foreach (var myVariable in myStatsSortedList)
+                 for(int i =0;i<newStats.Count;i++)
+                 {
+                     if(i.Equals(0))
+                         Console.WriteLine("DISTINCT_PLAY_COUNT" + "\t" + "CLIENT_COUNT");
+                     Console.WriteLine(" " + newStats.ElementAt(i) +"\t\t\t" + "  " + newStatsIndex.ElementAt(i));
+                 }
+            }
+            else if (!cli.EndsWith(','))
             {
 
                 int searchedIndex = keyValues.BinarySearch(searchedOne, new myComparer());
@@ -391,10 +543,12 @@ namespace ConsoleApp1_GetFile
                     Console.WriteLine("It's not found on the list");
                 }
             }
-            else
+            else 
             {
                 int allSongsCounter = 0;
                 int totalPlays = 0;
+                int totalClients = 0;
+                string tempClient = ",";
                 foreach (KeyValuePair<string, int> kvp in keyValues)
                 {
                     if (kvp.Key.StartsWith(searchOne))
@@ -407,7 +561,6 @@ namespace ConsoleApp1_GetFile
                 Console.WriteLine("Total of distinct songs listened for this user " + allSongsCounter + " total plays are " + totalPlays);
             }
         }
-
         public static void WaitingForSomeTime(object sender, ElapsedEventArgs e)
         {
             Console.WriteLine("Thank you for waiting, operation continues");

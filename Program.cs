@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading;
 
-namespace ConsoleApp1_GetFile
+namespace PIWorks
 {
     class Program
     {
@@ -18,7 +18,7 @@ namespace ConsoleApp1_GetFile
             }
             finally
             {
-                Console.WriteLine("Program has finished");
+                Console.WriteLine("Program has just finished");
             }
         }
     }
